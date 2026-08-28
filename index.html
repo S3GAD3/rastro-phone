@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>RASTRO-PHONE · Expediente OSINT · Teléfono</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --kraft: #d9c9a3;
+    --kraft-dark: #c4b088;
+    --kraft-shadow: #a8926a;
+    --paper: #f0e6cc;
+    --paper-dark: #e4d7b0;
+    --ink: #2b2320;
+    --ink-soft: #4a3f36;
+    --stamp-red: #9c2b2b;
+    --stamp-red-dark: #6f1c1c;
+    --stamp-blue: #1f3d5c;
+    --stamp-blue-dark: #142a40;
+    --stamp-green:#33502f;
+    --stamp-green-dark:#213620;
+    --stamp-amber:#8a6a1c;
+    --stamp-amber-dark:#5e480f;
+    --tape: rgba(230, 220, 180, 0.55);
+    --folder-tab: #c9a876;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px),
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.15), transparent 60%),
+      var(--kraft);
+    color: var(--ink);
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    min-height:100vh;
+  }
+  .title-font{ font-family:'Special Elite', 'Courier New', monospace; letter-spacing:1px; }
+  a{ color: inherit; }
+
+  /* ===== EXPEDIENTE / CARPETA ===== */
+  .folder-wrap{ max-width: 1040px; margin: 28px auto 60px; padding: 0 16px; }
+  .folder-tab{
+    display:inline-block; background: var(--folder-tab); border: 2px solid var(--ink); border-bottom:none;
+    padding: 8px 26px 10px; margin-left: 30px; border-radius: 8px 8px 0 0;
+    font-family:'Special Elite', monospace; font-size: 13px; letter-spacing: 2px; color: var(--ink);
+  }
+  .folder-body{
+    position:relative; background: var(--paper);
+    background-image: radial-gradient(circle at 85% 5%, rgba(255,255,255,0.35), transparent 40%);
+    border: 3px solid var(--ink); border-radius: 4px 10px 10px 10px;
+    padding: 30px 26px 22px; box-shadow: 6px 6px 0 rgba(0,0,0,0.18), 0 22px 45px rgba(30,20,10,0.28);
+  }
+  .tape{ position:absolute; width:110px; height:34px; background: var(--tape); border:1px solid rgba(80,60,30,0.25);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15); opacity:0.9; }
+  .tape.t1{ top:-16px; left:36px; transform: rotate(-5deg); }
+  .tape.t2{ top:-14px; right:60px; transform: rotate(4deg); }
+  .corner{ position:absolute; width:26px; height:26px; border-color: var(--ink); opacity:0.55; }
+  .corner.tl{ top:8px; left:8px; border-top:3px solid; border-left:3px solid; }
+  .corner.br{ bottom:8px; right:8px; border-bottom:3px solid; border-right:3px solid; }
+  .stamp-mark{
+    position:absolute; top:18px; right:26px; border:2px solid var(--stamp-red-dark); color:var(--stamp-red-dark);
+    padding:4px 12px; border-radius:5px; transform: rotate(6deg); font-family:'Special Elite', monospace;
+    font-size:11px; letter-spacing:2px; text-transform:uppercase; opacity:0.75;
+  }
+
+  /* ===== HEADER ===== */
+  header.expediente-header{ text-align:center; margin-bottom:20px; }
+  .brandline{ display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; }
+  .brandline .badge{ width:44px; height:44px; }
+  .brandline .badge svg{ width:100%; height:100%; }
+  .brandline .brand-txt{ text-align:left; }
+  .brandline .brand-eyebrow{ font-size:10px; letter-spacing:.18em; color: var(--stamp-amber-dark); text-transform:uppercase; }
+  .brandline .brand-name{ font-family:'Special Elite', monospace; font-size:14px; letter-spacing:.06em; }
+  .brandline .brand-name span{ color: var(--stamp-blue); }
+  header.expediente-header h1{ font-size: clamp(30px, 5vw, 46px); margin: 4px 0 6px; }
+  header.expediente-header .sub{ color: var(--ink-soft); font-size:13px; max-width:62ch; margin:0 auto 12px; line-height:1.55; }
+  .case-meta{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; font-size:11px; color: var(--ink-soft); }
+  .case-meta span{ border:1px solid var(--ink); background: var(--paper-dark); border-radius:10px; padding:3px 10px; }
+
+  /* ===== SEARCH BOX ===== */
+  .search-box{
+    background: var(--paper-dark); border: 2px solid var(--ink); border-radius: 6px; padding: 18px;
+    margin-bottom: 18px; box-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+  }
+  .search-box label{ display:block; font-size:12px; letter-spacing:2px; text-transform:uppercase; color: var(--ink-soft); margin-bottom:8px; }
+  .search-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .search-row input, .fieldgrid input{
+    flex: 1 1 220px; font-family:'Courier Prime', monospace; font-size: 15px; padding: 10px 12px;
+    border: 2px solid var(--ink); border-radius: 4px; background: var(--paper); color: var(--ink);
+  }
+  .search-row input#phone{ flex: 1 1 260px; font-size:18px; }
+  .search-row input:focus, .fieldgrid input:focus{ outline: 2px solid var(--stamp-blue); }
+  .fieldgrid{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .btn-stamp{
+    font-family:'Special Elite', monospace; font-size: 13px; letter-spacing:1px; padding: 12px 20px;
+    border: 3px solid var(--stamp-red-dark); background: var(--stamp-red); color: #f6ead0; border-radius: 6px;
+    cursor:pointer; box-shadow: 3px 3px 0 var(--stamp-red-dark); text-transform: uppercase; white-space:nowrap;
+  }
+  .btn-stamp:hover{ transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--stamp-red-dark); }
+  .btn-stamp:active{ transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--stamp-red-dark); }
+  .btn-stamp.blue{ border-color: var(--stamp-blue-dark); background: var(--stamp-blue); box-shadow:3px 3px 0 var(--stamp-blue-dark); }
+  .btn-stamp.blue:hover{ box-shadow:4px 4px 0 var(--stamp-blue-dark); }
+  .btn-stamp.green{ border-color: var(--stamp-green-dark); background: var(--stamp-green); box-shadow:3px 3px 0 var(--stamp-green-dark); }
+  .btn-stamp.green:hover{ box-shadow:4px 4px 0 var(--stamp-green-dark); }
+  .btn-stamp.ghost{ background: var(--paper); color: var(--ink); box-shadow:3px 3px 0 var(--ink); border-color: var(--ink); }
+  .btn-stamp.ghost:hover{ box-shadow:4px 4px 0 var(--ink); }
+  .btn-stamp.small{ font-size:10.5px; padding:8px 12px; }
+  .btn-stamp[disabled]{ opacity:.45; cursor:not-allowed; transform:none !important; }
+  .hint{ font-size:11px; color:var(--ink-soft); margin-top:8px; line-height:1.5; }
+  .status-line{ min-height:16px; font-size:12px; color: var(--stamp-green-dark); margin-top:8px; font-weight:700; }
+
+  /* ===== STATS ===== */
+  .stats-row{ display:grid; grid-template-columns: repeat(5,1fr); gap:9px; margin: 14px 0 4px; }
+  .stat-box{ background: var(--paper); border:1.5px solid var(--ink); border-radius:6px; padding:9px 8px; text-align:center; }
+  .stat-box b{ display:block; font-size:16px; font-family:'Special Elite', monospace; }
+  .stat-box span{ font-size:9.5px; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
+
+  /* ===== SECTION TITLES ===== */
+  .section-title{ display:flex; align-items:center; gap:10px; margin: 26px 0 10px; }
+  .section-title .num{
+    font-family:'Special Elite', monospace; font-size:12px; background: var(--stamp-blue); color:#f0ead4;
+    border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .section-title h2{ font-size:16px; margin:0; letter-spacing:.02em; }
+  .section-desc{ font-size:11.5px; color: var(--ink-soft); margin: -4px 0 10px; line-height:1.5; }
+
+  /* ===== DIRECT ACCESS ROW (whatsapp/telegram) ===== */
+  .direct-row{ display:flex; gap:16px; align-items:stretch; flex-wrap:wrap; padding: 4px 0 6px; }
+  .direct-card{
+    flex:1 1 260px; border:2px solid var(--ink); border-radius:6px; background: var(--paper); padding:14px;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+  }
+  .direct-card h3{ margin:0 0 4px; font-size:13px; }
+  .direct-card p{ margin:0 0 10px; font-size:11px; color: var(--ink-soft); line-height:1.5; }
+  .direct-card .row{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  /* ===== QUERY BOX ===== */
+  .query-panel{ border:2px solid var(--ink); border-radius:6px; background: var(--paper); padding:14px; margin-top:6px; }
+  .query-panel .labelrow{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .query-panel select{ font-family:'Courier Prime', monospace; font-size:12px; padding:6px 8px; border:2px solid var(--ink); border-radius:4px; background: var(--paper-dark); }
+  .codebox{
+    border: 1.5px dashed var(--ink-soft); background: var(--paper-dark); border-radius:5px; padding:10px 12px;
+    font-size:11.5px; line-height:1.55; word-break: break-word; min-height:44px; max-height:150px; overflow:auto;
+  }
+
+  /* ===== CATEGORIES ===== */
+  details.category{ border: 2px solid var(--ink); border-radius: 6px; margin-bottom: 12px; background: var(--paper); overflow:hidden; }
+  details.category summary{
+    list-style:none; cursor:pointer; padding: 12px 16px; background: var(--kraft-dark); font-family:'Special Elite', monospace;
+    letter-spacing: 1.5px; font-size: 13px; text-transform:uppercase; color: var(--ink);
+    display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--ink);
+  }
+  details.category summary::-webkit-details-marker{ display:none; }
+  details.category summary:after{ content:"▸"; transition: transform .15s ease; font-size:15px; }
+  details.category[open] summary:after{ transform: rotate(90deg); }
+  details.category .count{ font-size:10px; background:var(--paper); border:1px solid var(--ink); padding:2px 8px; border-radius:10px; margin-left:8px; }
+  details.category.done summary{ box-shadow: inset 4px 0 0 var(--stamp-green); }
+  .cat-desc{ font-size:11px; color: var(--ink-soft); padding: 10px 16px 0; line-height:1.5; }
+
+  .btn-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 10px; padding: 14px; }
+  .plat-btn{
+    font-family:'Courier Prime', monospace; font-weight:700; font-size: 12px; padding: 12px 8px; text-align:center;
+    border: 2.5px solid var(--stamp-blue-dark); background: var(--stamp-blue); color: #eaf1f8; border-radius: 6px;
+    cursor:pointer; box-shadow: 3px 3px 0 var(--stamp-blue-dark); text-decoration:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height: 56px;
+    transition: transform .08s ease;
+  }
+  .plat-btn:hover{ transform: translate(-1px,-1px); }
+  .plat-btn:active{ transform: translate(1px,1px); }
+  .plat-btn.dork{ background: var(--stamp-green); border-color: var(--stamp-green-dark); box-shadow: 3px 3px 0 var(--stamp-green-dark); }
+  .plat-btn .tag{ font-size:8.5px; opacity:0.85; letter-spacing:0.5px; text-transform:uppercase; }
+
+  /* ===== VARIANTS / CHIPS ===== */
+  .chips{ display:flex; flex-wrap:wrap; gap:7px; }
+  .chip{
+    font-family:'Courier Prime', monospace; font-size:11.5px; padding:6px 9px; border:1.5px solid var(--ink);
+    background: var(--paper); border-radius:5px;
+  }
+  .chip.masked{ border-style:dashed; border-color: var(--stamp-amber-dark); background: #f3e6c8; }
+
+  /* ===== CHECKLIST ===== */
+  .progress{ height:10px; border-radius:999px; background: var(--paper-dark); border:1.5px solid var(--ink); overflow:hidden; margin:8px 0 4px; }
+  .progress i{ display:block; height:100%; width:0; background: linear-gradient(90deg, var(--stamp-blue), var(--stamp-green)); transition:.2s; }
+  .tasklist{ display:grid; gap:7px; }
+  .task{ display:flex; gap:10px; align-items:flex-start; border:1.5px solid var(--ink); background: var(--paper); border-radius:6px; padding:9px 11px; }
+  .task input{ margin-top:3px; accent-color: var(--stamp-green); width:15px; height:15px; }
+  .task b{ font-size:12px; } .task small{ display:block; color: var(--ink-soft); margin-top:2px; line-height:1.4; }
+
+  /* ===== FINDINGS TABLE ===== */
+  .findings-form{ display:grid; grid-template-columns: 1fr 1.2fr 1.6fr auto; gap:8px; margin-bottom:12px; }
+  .findings-form input{ font-family:'Courier Prime', monospace; padding:9px 10px; border:2px solid var(--ink); border-radius:4px; background: var(--paper); font-size:12.5px; }
+  .tablewrap{ overflow:auto; border: 2px solid var(--ink); border-radius:6px; }
+  table{ width:100%; border-collapse:collapse; min-width:640px; background: var(--paper); }
+  th,td{ padding:9px 10px; border-bottom:1px solid var(--kraft-shadow); text-align:left; font-size:11px; vertical-align:top; }
+  th{ background: var(--kraft-dark); font-family:'Special Elite', monospace; letter-spacing:.05em; text-transform:uppercase; font-size:10px; }
+  td a{ color: var(--stamp-blue-dark); word-break:break-all; }
+  .del-btn{ border:1.5px solid var(--stamp-red-dark); background:#f3d9d3; color:var(--stamp-red-dark); border-radius:4px; padding:4px 8px; cursor:pointer; font-family:'Courier Prime',monospace; font-weight:700; }
+
+  /* ===== NOTES ===== */
+  textarea{
+    width:100%; min-height:110px; font-family:'Courier Prime', monospace; font-size:12.5px; padding:12px;
+    border:2px solid var(--ink); border-radius:6px; background: var(--paper); resize:vertical; color:var(--ink);
+  }
+  .notice{ border-left:4px solid var(--stamp-amber-dark); background:#f3e9cf; border-radius:5px; padding:10px 12px; color: var(--ink-soft); font-size:11.5px; line-height:1.55; margin-top:10px; }
+
+  /* ===== HISTORY ===== */
+  .history{ display:flex; flex-direction:column; gap:7px; max-height:220px; overflow:auto; margin-top:10px; }
+  .hist{ display:flex; align-items:center; gap:8px; border:1.5px solid var(--ink); background: var(--paper); border-radius:6px; padding:8px 10px; cursor:pointer; }
+  .hist:hover{ background: var(--paper-dark); }
+  .hist code{ font-size:11.5px; } .hist time{ margin-left:auto; color: var(--ink-soft); font-size:9.5px; }
+
+  .two-col{ display:grid; grid-template-columns: 1.1fr .9fr; gap:20px; }
+  @media (max-width:820px){ .two-col{ grid-template-columns: 1fr; } .stats-row{ grid-template-columns: repeat(2,1fr); } .findings-form{ grid-template-columns:1fr; } }
+
+  /* ===== FOOTER ===== */
+  footer{ margin-top: 24px; border-top: 3px double var(--ink); padding-top: 14px; font-size: 11px; color: var(--ink-soft); text-align:center; line-height:1.6; }
+  footer .stamp-note{ display:inline-block; border:2px solid var(--stamp-red-dark); color:var(--stamp-red-dark); padding:4px 12px; border-radius:4px; transform:rotate(-2deg); font-family:'Special Elite', monospace; letter-spacing:1px; margin-top:6px; }
+  footer .links{ margin-top:8px; }
+  footer .links a{ color: var(--stamp-blue-dark); text-decoration:underline; margin:0 6px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(20,15,10,0.78); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{ background: var(--paper); border:3px solid var(--ink); border-radius:8px; padding:20px; max-width:460px; width:100%; box-shadow:8px 8px 0 rgba(0,0,0,0.3); text-align:center; }
+  .modal-box h3{ margin-top:0; }
+  .modal-close{ position:absolute; top:6px; right:8px; background:none; border:none; color:var(--ink-soft); font-size:22px; cursor:pointer; padding:4px 8px; line-height:1; }
+  .modal-close:hover{ color: var(--stamp-red-dark); }
+  .modal-actions{ margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+  .empty-msg{ text-align:center; padding:26px; color: var(--ink-soft); font-size:12.5px; }
+
+  @media (max-width:560px){
+    .folder-body{ padding: 22px 14px 16px; }
+    .stamp-mark{ display:none; }
+    header.expediente-header h1{ font-size:26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="folder-wrap">
+  <div class="folder-tab title-font">EXPEDIENTE · RASTRO-PHONE</div>
+  <div class="folder-body">
+    <div class="tape t1"></div>
+    <div class="tape t2"></div>
+    <div class="corner tl"></div>
+    <div class="corner br"></div>
+    <div class="stamp-mark">Confidencial</div>
+
+    <header class="expediente-header">
+      <div class="brandline">
+        <div class="badge">
+          <svg viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="26" stroke="#9c2b2b" stroke-width="1.5" opacity="0.55"/>
+            <circle cx="28" cy="28" r="20" stroke="#1f3d5c" stroke-width="1" opacity="0.5"/>
+            <path d="M28 10 L28 46 M10 28 L46 28" stroke="#9c2b2b" stroke-width="0.75" opacity="0.3"/>
+            <text x="28" y="25" text-anchor="middle" font-family="Courier Prime, monospace" font-size="9" font-weight="700" fill="#2b2320">OSINT</text>
+            <text x="28" y="37" text-anchor="middle" font-family="Courier Prime, monospace" font-size="8" font-weight="700" fill="#9c2b2b">S3GAD3</text>
+          </svg>
+        </div>
+        <div class="brand-txt">
+          <div class="brand-eyebrow">Herramientas OSINT</div>
+          <div class="brand-name">OSINT <span>S3GAD3</span></div>
+        </div>
+      </div>
+      <h1 class="title-font">RASTRO-PHONE</h1>
+      <p class="sub">Consola de investigación de números de teléfono: normalización internacional, metabúsqueda multi-motor, pivotes OSINT por categoría (redes, mensajería, anuncios, documentos, listas de spam/estafa e imágenes) y libreta de caso — todo generado y ejecutado en el propio navegador.</p>
+      <div class="case-meta">
+        <span>REF: <span id="caseIdTop">—</span></span>
+        <span>KIT: RASTRO-GH + RASTRO-USER companion</span>
+        <span id="today"></span>
+      </div>
+    </header>
+
+    <!-- ============ 01 · OBJETIVO ============ -->
+    <div class="search-box">
+      <label for="phone">Número de teléfono (formato internacional recomendado)</label>
+      <div class="search-row">
+        <input type="text" id="phone" inputmode="tel" autocomplete="off" placeholder="+34 600 123 456">
+        <button class="btn-stamp" id="analyze">▶ Analizar objetivo</button>
+        <button class="btn-stamp ghost small" id="newCase">Nueva sesión</button>
+      </div>
+      <div class="fieldgrid">
+        <input type="text" id="identity" placeholder="Nombre / alias conocido">
+        <input type="text" id="email" placeholder="Email / dominio">
+        <input type="text" id="context" placeholder="Contexto: empresa, ciudad, username, matrícula…">
+      </div>
+      <div class="hint">Los campos de contexto son opcionales y permiten cruzar el número con un alias, email o término conocido en la búsqueda combinada. Todo el análisis (normalización, prefijo, variantes) se calcula localmente; nada se envía a ningún servidor propio.</div>
+      <div class="status-line" id="status"></div>
+      <div class="stats-row">
+        <div class="stat-box"><b id="kCountry">—</b><span>Prefijo</span></div>
+        <div class="stat-box"><b id="kType">—</b><span>Tipo estimado</span></div>
+        <div class="stat-box"><b id="kVariants">0</b><span>Variantes</span></div>
+        <div class="stat-box"><b id="kMasked">0</b><span>Ofuscadas</span></div>
+        <div class="stat-box"><b id="kProgress">0%</b><span>Checklist</span></div>
+      </div>
+    </div>
+
+    <!-- ============ 02 · ACCESO DIRECTO ============ -->
+    <div class="section-title"><span class="num">02</span><h2>Acceso directo · mensajería</h2></div>
+    <p class="section-desc">Enlaces construidos a partir del número normalizado. <b>WhatsApp</b> usa el esquema oficial <code>wa.me/</code>. <b>Telegram</b> se prueba con <code>t.me/+&lt;número&gt;</code>: la disponibilidad depende de que la cuenta permita ser encontrada por teléfono.</p>
+    <div class="direct-row">
+      <div class="direct-card">
+        <h3>WhatsApp</h3>
+        <p>Abre el chat directo si el número tiene WhatsApp activo. No indica de forma explícita si el número existe: solo abrirá una conversación en blanco.</p>
+        <div class="row">
+          <button class="btn-stamp green small" id="whatsappDirect">Abrir perfil</button>
+          <button class="btn-stamp ghost small" id="copyWhatsapp">Copiar enlace</button>
+        </div>
+      </div>
+      <div class="direct-card">
+        <h3>Telegram</h3>
+        <p>Prueba de resolución por número. Telegram solo lo permite si el usuario no ha ocultado su visibilidad por teléfono en privacidad.</p>
+        <div class="row">
+          <button class="btn-stamp blue small" id="telegramDirect">Probar perfil</button>
+          <button class="btn-stamp ghost small" id="copyTelegram">Copiar enlace</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 03 · QUERY ACTIVA ============ -->
+    <div class="query-panel">
+      <div class="labelrow">
+        <b style="font-size:12px">Query activa</b>
+        <div class="row" style="display:flex;gap:8px;align-items:center">
+          <select id="queryMode"><option value="exact">Exacta</option><option value="masked">Ofuscada</option><option value="context">Exacta + contexto</option></select>
+          <button class="btn-stamp ghost small" id="copyQuery">Copiar</button>
+        </div>
+      </div>
+      <div class="codebox" id="queryBox">—</div>
+    </div>
+
+    <!-- ============ 04 · MOTORES DE BÚSQUEDA ============ -->
+    <div class="section-title"><span class="num">04</span><h2>Metabúsqueda multi-motor</h2></div>
+    <p class="section-desc">Cada botón azul abre el motor con la query activa (arriba). Botones ejecutados 100% en tu navegador, sin claves de API.</p>
+    <details class="category" open id="catEngines">
+      <summary>Motores de búsqueda <span class="count" id="cntEngines">9</span></summary>
+      <div class="btn-grid" id="engineGrid"></div>
+      <div style="padding:0 14px 14px">
+        <button class="btn-stamp blue" id="allEngines" style="width:100%">🔎 Buscar en todos los motores</button>
+      </div>
+    </details>
+
+    <!-- ============ 05 · NORMALIZACIÓN ============ -->
+    <div class="section-title"><span class="num">05</span><h2>Normalización · variantes</h2></div>
+    <p class="section-desc">Formatos exactos y formas ofuscadas que pueden aparecer en anuncios, foros o documentos filtrados.</p>
+    <div class="two-col">
+      <div>
+        <div class="labelrow" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b style="font-size:12px">Variantes exactas</b>
+          <button class="btn-stamp ghost small" id="copyVariants">Copiar todo</button>
+        </div>
+        <div class="chips" id="variants"><span class="empty-msg" style="padding:0">Analiza un objetivo.</span></div>
+      </div>
+      <div>
+        <b style="font-size:12px;display:block;margin-bottom:6px">Variantes ofuscadas</b>
+        <div class="chips" id="masked"><span class="empty-msg" style="padding:0">Sin variantes ofuscadas.</span></div>
+      </div>
+    </div>
+
+    <!-- ============ 06 · PLAYBOOK DE CATEGORÍAS ============ -->
+    <div class="section-title"><span class="num">06</span><h2>Playbook OSINT por categoría</h2></div>
+    <p class="section-desc"><span class="plat-btn" style="display:inline-flex;min-height:auto;padding:2px 8px;font-size:9.5px;vertical-align:middle">directo</span> = enlace o consulta general del motor. <span class="plat-btn dork" style="display:inline-flex;min-height:auto;padding:2px 8px;font-size:9.5px;vertical-align:middle">dork</span> = búsqueda <code>site:</code> dirigida porque la plataforma no ofrece un patrón de perfil fiable a partir del número. El estado "revisada" se marca en verde y se guarda en la sesión local del número.</p>
+    <div id="categories"></div>
+
+    <!-- ============ 07 · CHECKLIST ============ -->
+    <div class="section-title"><span class="num">07</span><h2>Checklist de investigación</h2></div>
+    <div class="progress"><i id="progressBar"></i></div>
+    <div class="hint" id="progressText" style="margin-top:0">0 de 0 completadas</div>
+    <div class="tasklist" id="taskList" style="margin-top:11px"></div>
+
+    <!-- ============ 08 · HALLAZGOS ============ -->
+    <div class="section-title"><span class="num">08</span><h2>Hallazgos manuales</h2></div>
+    <p class="section-desc">Registra URLs o referencias relevantes. No se descarga ni inspecciona ningún contenido: funciona como libreta de trabajo local.</p>
+    <div class="findings-form">
+      <input id="findingSource" type="text" placeholder="Fuente / plataforma">
+      <input id="findingUrl" type="text" placeholder="URL / referencia">
+      <input id="findingNote" type="text" placeholder="Qué aporta / relación observada">
+      <button class="btn-stamp green" id="addFinding">Añadir</button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Fecha</th><th>Fuente</th><th>URL / referencia</th><th>Observación</th><th></th></tr></thead>
+        <tbody id="findingsBody"><tr><td colspan="5" class="empty-msg">Sin hallazgos registrados.</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- ============ 09 · NOTAS ============ -->
+    <div class="section-title"><span class="num">09</span><h2>Notas del investigador</h2></div>
+    <textarea id="notesBox" placeholder="Hipótesis, descartes, relaciones, fechas, observaciones…"></textarea>
+    <div class="notice">Una coincidencia del número no es atribución suficiente. Corrobora identidad, temporalidad, contexto, posible reciclado de numeración y al menos una fuente independiente antes de dar por válido un hallazgo.</div>
+
+    <!-- ============ 10 · EXPORTAR ============ -->
+    <div class="section-title"><span class="num">10</span><h2>Exportar expediente</h2></div>
+    <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-stamp blue" id="exportHtml">Informe HTML</button>
+      <button class="btn-stamp ghost" id="exportJson">JSON</button>
+      <button class="btn-stamp ghost" id="exportTxt">TXT</button>
+      <button class="btn-stamp" id="deleteCase" style="background:var(--stamp-red);border-color:var(--stamp-red-dark)">Eliminar sesión</button>
+    </div>
+    <div class="labelrow" style="display:flex;justify-content:space-between;align-items:center;margin-top:18px">
+      <b style="font-size:13px">Sesiones recientes</b>
+      <button class="btn-stamp ghost small" id="clearHistory">Vaciar lista</button>
+    </div>
+    <div class="history" id="history"><span class="empty-msg">Sin sesiones.</span></div>
+
+    <footer>
+      RASTRO-PHONE · Consola OSINT de números de teléfono · Herramienta 100% cliente · Sin backend · Sin claves de API · Sin telemetría propia<br>
+      Las consultas se abren en servicios externos bajo sus propias condiciones de uso. Valida toda información antes de emplearla como evidencia o atribución.
+      <div class="stamp-note">Uso interno autorizado · Investigación OSINT</div>
+      <div class="links">Kit de herramientas: <a href="https://s3gad3.github.io/rastro-gh/" target="_blank" rel="noopener noreferrer">RASTRO-GH</a> · <a href="https://s3gad3.github.io/rastro-user/" target="_blank" rel="noopener noreferrer">RASTRO-USER</a></div>
+    </footer>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" id="modalClose">×</button>
+    <h3 id="modalTitle" class="title-font">—</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+/* ============== MOTORES ============== */
+const engines={
+  google:{label:"Google", tag:"G", url:q=>"https://www.google.com/search?q="+encodeURIComponent(q)},
+  bing:{label:"Bing", tag:"B", url:q=>"https://www.bing.com/search?q="+encodeURIComponent(q)},
+  duck:{label:"DuckDuckGo", tag:"D", url:q=>"https://duckduckgo.com/?q="+encodeURIComponent(q)},
+  yandex:{label:"Yandex", tag:"Y", url:q=>"https://yandex.com/search/?text="+encodeURIComponent(q)},
+  brave:{label:"Brave", tag:"Br", url:q=>"https://search.brave.com/search?q="+encodeURIComponent(q)},
+  startpage:{label:"Startpage", tag:"S", url:q=>"https://www.startpage.com/sp/search?query="+encodeURIComponent(q)},
+  ecosia:{label:"Ecosia", tag:"E", url:q=>"https://www.ecosia.org/search?q="+encodeURIComponent(q)},
+  mojeek:{label:"Mojeek", tag:"M", url:q=>"https://www.mojeek.com/search?q="+encodeURIComponent(q)},
+  yahoo:{label:"Yahoo", tag:"Ya", url:q=>"https://search.yahoo.com/search?p="+encodeURIComponent(q)}
+};
+
+/* ============== PREFIJOS INTERNACIONALES ============== */
+const calling={
+"1":"US/CA","7":"RU/KZ","20":"EG","27":"ZA","30":"GR","31":"NL","32":"BE","33":"FR","34":"ES","36":"HU","39":"IT","40":"RO","41":"CH","43":"AT","44":"UK","45":"DK","46":"SE","47":"NO","48":"PL","49":"DE",
+"51":"PE","52":"MX","53":"CU","54":"AR","55":"BR","56":"CL","57":"CO","58":"VE","60":"MY","61":"AU","62":"ID","63":"PH","64":"NZ","65":"SG","66":"TH","81":"JP","82":"KR","84":"VN","86":"CN","90":"TR","91":"IN","92":"PK","93":"AF","94":"LK","95":"MM","98":"IR",
+"211":"SS","212":"MA/EH","213":"DZ","216":"TN","218":"LY","220":"GM","221":"SN","222":"MR","223":"ML","224":"GN","225":"CI","226":"BF","227":"NE","228":"TG","229":"BJ","230":"MU","231":"LR","232":"SL","233":"GH","234":"NG","235":"TD","236":"CF","237":"CM","238":"CV","239":"ST","240":"GQ","241":"GA","242":"CG","243":"CD","244":"AO","245":"GW","248":"SC","249":"SD","250":"RW","251":"ET","252":"SO","253":"DJ","254":"KE","255":"TZ","256":"UG","257":"BI","258":"MZ","260":"ZM","261":"MG","262":"RE/YT","263":"ZW","264":"NA","265":"MW","266":"LS","267":"BW","268":"SZ","269":"KM","290":"SH","291":"ER","297":"AW","298":"FO","299":"GL",
+"350":"GI","351":"PT","352":"LU","353":"IE","354":"IS","355":"AL","356":"MT","357":"CY","358":"FI","359":"BG","370":"LT","371":"LV","372":"EE","373":"MD","374":"AM","375":"BY","376":"AD","377":"MC","378":"SM","380":"UA","381":"RS","382":"ME","383":"XK","385":"HR","386":"SI","387":"BA","389":"MK",
+"420":"CZ","421":"SK","423":"LI","500":"FK","501":"BZ","502":"GT","503":"SV","504":"HN","505":"NI","506":"CR","507":"PA","508":"PM","509":"HT","590":"GP/BL/MF","591":"BO","592":"GY","593":"EC","594":"GF","595":"PY","596":"MQ","597":"SR","598":"UY","599":"CW/BQ",
+"670":"TL","672":"AU territories","673":"BN","674":"NR","675":"PG","676":"TO","677":"SB","678":"VU","679":"FJ","680":"PW","681":"WF","682":"CK","683":"NU","685":"WS","686":"KI","687":"NC","688":"TV","689":"PF","690":"TK","691":"FM","692":"MH",
+"850":"KP","852":"HK","853":"MO","855":"KH","856":"LA","880":"BD","886":"TW","960":"MV","961":"LB","962":"JO","963":"SY","964":"IQ","965":"KW","966":"SA","967":"YE","968":"OM","970":"PS","971":"AE","972":"IL","973":"BH","974":"QA","975":"BT","976":"MN","977":"NP","992":"TJ","993":"TM","994":"AZ","995":"GE","996":"KG","998":"UZ"
+};
+
+/* ============== CATEGORÍAS DEL PLAYBOOK ============== */
+const categories=[
+ {id:"identity",phase:"identidad",title:"Identidad / contacto",items:[
+   {name:"Web completa",tag:"exacta",kind:"direct",q:s=>s.exact},
+   {name:"Teléfono + contexto",tag:"con alias/email",kind:"direct",q:s=>s.contextQuery},
+   {name:"Datos de contacto",tag:"contacto, CV, email",kind:"dork",q:s=>`(${s.exact}) (contacto OR contact OR email OR correo OR direcci\u00f3n OR address OR CV OR curriculum)`},
+   {name:"Alias / username",tag:"perfiles asociados",kind:"dork",q:s=>`(${s.exact}) (username OR usuario OR alias OR nick OR perfil OR profile)`}
+ ]},
+ {id:"social",phase:"social",title:"Redes sociales",items:[
+   {name:"Facebook",tag:"site:",kind:"dork",q:s=>`site:facebook.com (${s.exact})`},
+   {name:"Instagram",tag:"site:",kind:"dork",q:s=>`site:instagram.com (${s.exact})`},
+   {name:"X / Twitter",tag:"site:",kind:"dork",q:s=>`(site:x.com OR site:twitter.com) (${s.exact})`},
+   {name:"LinkedIn",tag:"site:",kind:"dork",q:s=>`site:linkedin.com (${s.exact})`},
+   {name:"TikTok",tag:"site:",kind:"dork",q:s=>`site:tiktok.com (${s.exact})`},
+   {name:"Reddit / foros",tag:"site:",kind:"dork",q:s=>`(site:reddit.com OR inurl:forum OR inurl:foro) (${s.exact})`}
+ ]},
+ {id:"messaging",phase:"mensajeria",title:"Mensajería (menciones indexadas)",items:[
+   {name:"Telegram",tag:"site:",kind:"dork",q:s=>`(site:t.me OR site:telegram.me) (${s.exact})`},
+   {name:"WhatsApp",tag:"menciones",kind:"dork",q:s=>`(site:wa.me OR "WhatsApp") (${s.exact})`},
+   {name:"Signal",tag:"menciones",kind:"dork",q:s=>`"Signal" (${s.exact})`},
+   {name:"Discord",tag:"site:",kind:"dork",q:s=>`(site:discord.com OR site:discord.gg) (${s.exact})`}
+ ]},
+ {id:"market",phase:"anuncios",title:"Anuncios y compraventa",items:[
+   {name:"Wallapop",tag:"site:",kind:"dork",q:s=>`site:wallapop.com (${s.exact})`},
+   {name:"Milanuncios",tag:"site:",kind:"dork",q:s=>`site:milanuncios.com (${s.exact})`},
+   {name:"Idealista / Fotocasa",tag:"site:",kind:"dork",q:s=>`(site:idealista.com OR site:fotocasa.es) (${s.exact})`},
+   {name:"eBay / Etsy",tag:"site:",kind:"dork",q:s=>`(site:ebay.com OR site:etsy.com) (${s.exact})`}
+ ]},
+ {id:"docs",phase:"documentos",title:"Documentos y directorios",items:[
+   {name:"PDF",tag:"filetype:",kind:"dork",q:s=>`(${s.exact}) filetype:pdf`},
+   {name:"Office",tag:"doc/xls/ppt",kind:"dork",q:s=>`(${s.exact}) (filetype:doc OR filetype:docx OR filetype:xls OR filetype:xlsx OR filetype:ppt OR filetype:pptx)`},
+   {name:"CV / directorios",tag:"listados",kind:"dork",q:s=>`(${s.exact}) (CV OR curriculum OR directorio OR directory OR listado OR tel\u00e9fono OR telefono)`},
+   {name:"Número ofuscado",tag:"variantes",kind:"dork",q:s=>s.maskedQuery}
+ ]},
+ {id:"technical",phase:"tecnico",title:"Repositorios y técnico",items:[
+   {name:"GitHub / GitLab",tag:"site:",kind:"dork",q:s=>`(site:github.com OR site:gitlab.com) (${s.exact})`},
+   {name:"Pastes / snippets",tag:"site:",kind:"dork",q:s=>`(site:pastebin.com OR site:gist.github.com) (${s.exact})`},
+   {name:"Config / logs",tag:"filetype:",kind:"dork",q:s=>`(${s.exact}) (filetype:txt OR filetype:json OR filetype:log OR inurl:config)`},
+   {name:"Ofuscación web",tag:"variantes",kind:"dork",q:s=>s.maskedQuery}
+ ]},
+ {id:"spam",phase:"spam",title:"Listas de spam / estafa (España)",items:[
+   {name:"Tellows España",tag:"directo",kind:"link",href:s=>`https://www.tellows.es/num/${encodeURIComponent("+"+s.digits)}`},
+   {name:"ListaSpam",tag:"directo",kind:"link",href:s=>`https://www.listaspam.com/busca.php?Telefono=${encodeURIComponent(s.national||s.digits)}`},
+   {name:"TelefonoSpam",tag:"site:",kind:"dork",q:s=>`site:telefonospam.com (${s.exact})`},
+   {name:"¿Quién me llama?",tag:"site:",kind:"dork",q:s=>`site:quienmellama.com (${s.exact})`},
+   {name:"Responderono",tag:"site:",kind:"dork",q:s=>`site:responderono.es (${s.exact})`}
+ ]},
+ {id:"images",phase:"imagenes",title:"Imágenes asociadas",items:[
+   {name:"Google Imágenes",tag:"directo",kind:"link",href:s=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent(s.exact)},
+   {name:"Bing Imágenes",tag:"directo",kind:"link",href:s=>"https://www.bing.com/images/search?q="+encodeURIComponent(s.exact)},
+   {name:"Yandex Imágenes",tag:"directo",kind:"link",href:s=>"https://yandex.com/images/search?text="+encodeURIComponent(s.exact)}
+ ]},
+ {id:"archive",phase:"archivo",title:"Archivo web",items:[
+   {name:"Internet Archive",tag:"búsqueda de texto",kind:"link",href:s=>"https://archive.org/search?query="+encodeURIComponent(s.raw||("+"+s.digits))},
+   {name:"Wayback Machine",tag:"capturas de URL",kind:"link",href:s=>"https://web.archive.org/web/*/"+encodeURIComponent(s.raw||("+"+s.digits))}
+ ]}
+];
+
+const checklist=[
+["normalize","Normalización","Verificar formato internacional y país/prefijo."],
+["motores","Metabúsqueda","Revisar al menos dos motores diferentes."],
+["identidad","Identidad / contacto","Comprobar datos de contacto y alias asociados."],
+["social","Redes sociales","Revisar huellas sociales indexadas."],
+["mensajeria","Mensajería","Comprobar WhatsApp/Telegram y menciones indexadas."],
+["anuncios","Anuncios","Revisar compraventa, clasificados e inmobiliario."],
+["documentos","Documentos","Buscar PDF, Office, CV y directorios."],
+["tecnico","Técnico","Revisar repositorios, pastes y archivos técnicos."],
+["spam","Listas de spam","Consultar Tellows, ListaSpam y directorios de estafa."],
+["imagenes","Imágenes","Buscar imágenes asociadas al número."],
+["archivo","Archivo web","Revisar Internet Archive / Wayback Machine."],
+["correlation","Correlación","Cruzar con alias, email, dominio o contexto conocido."],
+["validate","Validación","Confirmar temporalidad, identidad y fuentes independientes."]
+];
+
+/* ============== ESTADO ============== */
+let state=freshState();
+function freshState(){
+ return {caseId:"",raw:"",digits:"",cc:"",country:"",national:"",type:"",variants:[],masked:[],exact:"",maskedQuery:"",contextQuery:"",
+ identity:"",email:"",context:"",checked:{},catDone:{},findings:[],notes:"",createdAt:"",updatedAt:""};
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function unique(a){return [...new Set(a.filter(Boolean))]}
+function detectCC(d){return Object.keys(calling).sort((a,b)=>b.length-a.length).find(k=>d.startsWith(k))||""}
+function groupRight(s,size=3,sep=" "){const out=[];for(let i=s.length;i>0;i-=size)out.unshift(s.slice(Math.max(0,i-size),i));return out.join(sep)}
+function natFmt(n,cc,sep=" "){
+ if(cc==="34"&&n.length===9)return n.replace(/(\d{3})(\d{3})(\d{3})/,`$1${sep}$2${sep}$3`);
+ if(cc==="1"&&n.length===10)return n.replace(/(\d{3})(\d{3})(\d{4})/,`$1${sep}$2${sep}$3`);
+ if(cc==="33"&&n.length===9)return n.replace(/(\d)(\d{2})(\d{2})(\d{2})(\d{2})/,`$1${sep}$2${sep}$3${sep}$4${sep}$5`);
+ return groupRight(n,3,sep)
+}
+function estimateType(cc,n){
+ if(cc==="34"){ if(/^[67]/.test(n))return "Móvil"; if(/^[89]/.test(n))return "Fijo / servicio"; }
+ if(cc==="1"&&n.length===10)return "NANP";
+ return n?"Internacional":"—";
+}
+function maskedVariants(d,cc,n){
+ const out=[];
+ if(n.length>=7){
+   const head=n.slice(0,3),tail=n.slice(-3),mid=Math.max(2,n.length-6);
+   out.push(`${head}${"*".repeat(mid)}${tail}`,`${head}${"X".repeat(mid)}${tail}`,`${head} ${"X".repeat(mid)} ${tail}`);
+   if(cc)out.push(`+${cc} ${head} ${"X".repeat(mid)} ${tail}`,`00${cc} ${head} ${"*".repeat(mid)} ${tail}`);
+ }
+ if(n.length>=9){
+   const a=n.slice(0,3),b=n.slice(3,6),c=n.slice(6);
+   out.push(`${a} XXX ${c}`,`${a}-XXX-${c}`,`${a} *** ${c}`,`${a} ${b.slice(0,1)}XX ${c}`);
+ }
+ return unique(out);
+}
+function buildQueries(){
+ state.exact=state.variants.map(v=>`"${v}"`).join(" OR ");
+ state.maskedQuery=state.masked.map(v=>`"${v}"`).join(" OR ");
+ const ctx=unique([state.identity,state.email,state.context].map(x=>(x||"").trim())).map(x=>`"${x}"`).join(" ");
+ state.contextQuery=ctx?`(${state.exact}) ${ctx}`:state.exact;
+}
+function caseKey(){return state.digits?`rph_case_${state.digits}`:""}
+function makeCaseId(){return "RPH-"+new Date().toISOString().slice(0,10).replaceAll("-","")+"-"+Math.random().toString(36).slice(2,7).toUpperCase()}
+function getHistory(){try{return JSON.parse(localStorage.getItem("rph_history")||"[]")}catch{return []}}
+function setHistory(list){localStorage.setItem("rph_history",JSON.stringify(list.slice(0,20)))}
+function saveState(){
+ if(!state.digits)return;
+ state.updatedAt=new Date().toISOString();
+ localStorage.setItem(caseKey(),JSON.stringify(state));
+ const h=getHistory().filter(x=>x.digits!==state.digits);
+ h.unshift({digits:state.digits,phone:"+"+state.digits,country:state.country,caseId:state.caseId,updatedAt:state.updatedAt});
+ setHistory(h);renderHistory();
+}
+function loadState(digits){
+ try{
+   const s=JSON.parse(localStorage.getItem(`rph_case_${digits}`)||"null");
+   if(!s)return false;
+   state=Object.assign(freshState(),s);populateInputs();renderAll();return true;
+ }catch{return false}
+}
+function populateInputs(){
+ $("#phone").value=state.raw||("+"+state.digits);
+ $("#identity").value=state.identity||"";$("#email").value=state.email||"";$("#context").value=state.context||"";$("#notesBox").value=state.notes||"";
+}
+function analyze(){
+ const raw=$("#phone").value.trim();
+ if(/[A-Za-z]/.test(raw)){ $("#status").textContent="El número contiene letras. Usa únicamente dígitos y separadores habituales."; return; }
+ let digits=raw.replace(/\D/g,"");if(raw.startsWith("00"))digits=digits.slice(2);
+ if(!raw||digits.length<6||digits.length>15){$("#status").textContent="Introduce un número internacional válido (6–15 dígitos).";return}
+ const existing=localStorage.getItem(`rph_case_${digits}`);
+ if(existing){
+   const pI=$("#identity").value.trim(), pE=$("#email").value.trim(), pC=$("#context").value.trim();
+   loadState(digits);
+   state.raw=raw;
+   if(pI) state.identity=pI; if(pE) state.email=pE; if(pC) state.context=pC;
+ }else{
+   const cc=detectCC(digits),n=cc?digits.slice(cc.length):"";
+   state=freshState();state.caseId=makeCaseId();state.createdAt=new Date().toISOString();state.raw=raw;state.digits=digits;state.cc=cc;
+   state.country=cc?(calling[cc]+" +"+cc):"Prefijo no identificado";state.national=n;state.type=estimateType(cc,n);
+   const nf=natFmt(n,cc," "),nh=natFmt(n,cc,"-"),nd=natFmt(n,cc,".");
+   state.variants=unique([`+${digits}`,digits,`00${digits}`,cc&&n?`+${cc} ${nf}`:"",cc&&n?`+${cc}-${nh}`:"",n,nf,nh,nd]);
+   state.masked=maskedVariants(digits,cc,n);
+   state.identity=$("#identity").value.trim();state.email=$("#email").value.trim();state.context=$("#context").value.trim();
+ }
+ buildQueries();state.checked.normalize=true;saveState();renderAll();$("#status").textContent="Objetivo cargado. Sesión guardada únicamente en este navegador.";
+}
+function requireState(){if(!state.digits){$("#status").textContent="Primero analiza un objetivo.";$("#phone").focus();return false}return true}
+function selectedQuery(){
+ const m=$("#queryMode").value;
+ return m==="masked"?(state.maskedQuery||state.exact):m==="context"?state.contextQuery:state.exact;
+}
+function openUrl(u){window.open(u,"_blank","noopener,noreferrer")}
+function copyText(t){if(!t)return;navigator.clipboard?.writeText(t).then(()=>$("#status").textContent="Copiado al portapapeles.").catch(()=>$("#status").textContent="No se pudo copiar.");}
+function download(name,content,type="text/plain"){const b=new Blob([content],{type}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+
+/* ============== RENDER ============== */
+function renderEngines(){
+ const grid=$("#engineGrid");
+ grid.innerHTML=Object.entries(engines).map(([key,e])=>
+   `<button class="plat-btn" data-engine="${key}"><span>${esc(e.tag)} · ${esc(e.label)}</span></button>`
+ ).join("");
+ $$("[data-engine]").forEach(b=>b.onclick=()=>{
+   if(!requireState())return;
+   openUrl(engines[b.dataset.engine].url(selectedQuery()));
+   state.checked.motores=true;saveState();renderChecklist();
+ });
+}
+function renderCategories(){
+ const box=$("#categories");
+ box.innerHTML=categories.map(cat=>{
+   const items=cat.items.map((it,i)=>{
+     const isLink=it.kind==="link";
+     const cls=isLink?"plat-btn":("plat-btn"+(it.kind==="dork"?" dork":""));
+     return `<a href="#" class="${cls}" data-cat="${cat.id}" data-idx="${i}"><span>${esc(it.name)}</span><span class="tag">${esc(it.tag||"")}</span></a>`;
+   }).join("");
+   return `<details class="category ${state.catDone[cat.id]?"done":""}" id="cat-${cat.id}">
+     <summary>${esc(cat.title)} <span class="count">${cat.items.length}</span></summary>
+     <div class="btn-grid">${items}</div>
+   </details>`;
+ }).join("");
+ $$("[data-cat]").forEach(a=>a.onclick=(ev)=>{
+   ev.preventDefault();
+   if(!requireState())return;
+   const cat=categories.find(c=>c.id===a.dataset.cat), item=cat.items[Number(a.dataset.idx)];
+   if(item.kind==="link"){ openUrl(item.href(state)); }
+   else{ const q=item.q(state); if(!q){$("#status").textContent="No hay query suficiente para esta consulta (revisa variantes ofuscadas).";return;} openUrl(engines.google.url(q)); }
+   state.catDone[cat.id]=true; state.checked[cat.phase]=true;
+   saveState();renderCategories();renderChecklist();
+ });
+}
+function renderChecklist(){
+ $("#taskList").innerHTML=checklist.map(([id,title,sub])=>`<label class="task"><input type="checkbox" data-task="${id}" ${state.checked[id]?"checked":""}><span><b>${esc(title)}</b><small>${esc(sub)}</small></span></label>`).join("");
+ $$("[data-task]").forEach(c=>c.onchange=()=>{state.checked[c.dataset.task]=c.checked;saveState();renderChecklist()});
+ const done=checklist.filter(([id])=>state.checked[id]).length,pct=Math.round(done/checklist.length*100);
+ $("#progressBar").style.width=pct+"%";$("#progressText").textContent=`${done} de ${checklist.length} completadas`;$("#kProgress").textContent=pct+"%";
+}
+function renderFindings(){
+ const tb=$("#findingsBody");
+ if(!state.findings.length){tb.innerHTML='<tr><td colspan="5" class="empty-msg">Sin hallazgos registrados.</td></tr>';return}
+ tb.innerHTML=state.findings.map((f,i)=>`<tr><td>${new Date(f.ts).toLocaleString()}</td><td>${esc(f.source)}</td><td>${/^https?:\/\//i.test(f.url)?`<a href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.url)}</a>`:esc(f.url)}</td><td>${esc(f.note)}</td><td><button class="del-btn" data-del="${i}">×</button></td></tr>`).join("");
+ $$("[data-del]").forEach(b=>b.onclick=()=>{state.findings.splice(Number(b.dataset.del),1);saveState();renderFindings()});
+}
+function renderHistory(){
+ const h=getHistory();$("#history").innerHTML=h.length?h.map(x=>`<div class="hist" data-load="${esc(x.digits)}"><code>${esc(x.phone)}</code><span class="hint" style="margin:0">${esc(x.country||"")}</span><time>${new Date(x.updatedAt).toLocaleString()}</time></div>`).join(""):'<span class="empty-msg">Sin sesiones.</span>';
+ $$("[data-load]").forEach(x=>x.onclick=()=>loadState(x.dataset.load));
+}
+function renderAll(){
+ buildQueries();
+ $("#caseIdTop").textContent=state.caseId||"—";
+ $("#kCountry").textContent=state.cc?("+"+state.cc):"?";$("#kType").textContent=state.type||"—";
+ $("#kVariants").textContent=state.variants.length;$("#kMasked").textContent=state.masked.length;
+ $("#variants").innerHTML=state.variants.length?state.variants.map(v=>`<span class="chip">${esc(v)}</span>`).join(""):'<span class="empty-msg" style="padding:0">Analiza un objetivo.</span>';
+ $("#masked").innerHTML=state.masked.length?state.masked.map(v=>`<span class="chip masked">${esc(v)}</span>`).join(""):'<span class="empty-msg" style="padding:0">Sin variantes ofuscadas.</span>';
+ $("#queryBox").textContent=selectedQuery()||"—";
+ renderCategories();renderChecklist();renderFindings();renderHistory();
+}
+
+/* ============== EVENTOS ============== */
+function whatsappUrl(){ if(!requireState())return ""; return `https://wa.me/${state.digits}`; }
+function telegramUrl(){ if(!requireState())return ""; return `https://t.me/+${state.digits}`; }
+$("#analyze").onclick=analyze;$("#phone").addEventListener("keydown",e=>{if(e.key==="Enter")analyze()});
+$("#whatsappDirect").onclick=()=>{const u=whatsappUrl();if(!u)return;openUrl(u);state.checked.mensajeria=true;saveState();renderChecklist();$("#status").textContent="Enlace directo de WhatsApp abierto.";};
+$("#telegramDirect").onclick=()=>{const u=telegramUrl();if(!u)return;openUrl(u);state.checked.mensajeria=true;saveState();renderChecklist();$("#status").textContent="Enlace t.me/+número abierto. La disponibilidad depende de Telegram y de la cuenta.";};
+$("#copyWhatsapp").onclick=()=>{const u=whatsappUrl();if(u)copyText(u)};
+$("#copyTelegram").onclick=()=>{const u=telegramUrl();if(u)copyText(u)};
+$("#queryMode").onchange=()=>$("#queryBox").textContent=selectedQuery()||"—";
+$("#copyQuery").onclick=()=>copyText(selectedQuery());
+$("#copyVariants").onclick=()=>copyText([...state.variants,"","OFUSCADAS",...state.masked].join("\n"));
+$("#allEngines").onclick=()=>{
+ if(!requireState())return;
+ const keys=Object.keys(engines);
+ keys.forEach((k,i)=>setTimeout(()=>openUrl(engines[k].url(selectedQuery())),i*90));
+ state.checked.motores=true;saveState();renderChecklist();
+ $("#status").textContent=`Búsquedas lanzadas en ${keys.length} motores. Autoriza pop-ups si el navegador bloquea alguna pestaña.`;
+};
+$("#addFinding").onclick=()=>{
+ if(!requireState())return;
+ const source=$("#findingSource").value.trim(),url=$("#findingUrl").value.trim(),note=$("#findingNote").value.trim();
+ if(!source&&!url&&!note){$("#status").textContent="Añade al menos un dato al hallazgo.";return}
+ state.findings.unshift({ts:new Date().toISOString(),source,url,note});
+ $("#findingSource").value=$("#findingUrl").value=$("#findingNote").value="";
+ saveState();renderFindings();
+};
+$("#notesBox").addEventListener("input",()=>{if(!state.digits)return;state.notes=$("#notesBox").value;saveState()});
+["identity","email","context"].forEach(id=>$("#"+id).addEventListener("change",()=>{if(!state.digits)return;state[id]=$("#"+id).value.trim();buildQueries();saveState();renderAll()}));
+
+function exportObject(){
+ return {tool:"RASTRO-PHONE · OSINT S3GAD3",caseId:state.caseId,generatedAt:new Date().toISOString(),
+ target:{input:state.raw,e164:"+"+state.digits,callingCode:state.cc,country:state.country,type:state.type,national:state.national,identity:state.identity,email:state.email,context:state.context},
+ variants:state.variants,maskedVariants:state.masked,
+ checklist:Object.fromEntries(checklist.map(([id,t])=>[t,!!state.checked[id]])),
+ findings:state.findings,notes:state.notes};
+}
+function reportHtml(){
+ const o=exportObject(),rows=o.findings.map(f=>`<tr><td>${esc(new Date(f.ts).toLocaleString())}</td><td>${esc(f.source)}</td><td>${esc(f.url)}</td><td>${esc(f.note)}</td></tr>`).join("")||"<tr><td colspan=4>Sin hallazgos</td></tr>";
+ return `<!doctype html><meta charset="utf-8"><title>${esc(o.caseId)} · RASTRO-PHONE</title><style>body{font:14px Arial;max-width:1000px;margin:40px auto;padding:0 20px;color:#2b2320}h1{border-bottom:3px solid #2b2320;padding-bottom:10px}code{background:#f0e6cc;padding:2px 5px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #c4b088;padding:8px;text-align:left;vertical-align:top}small{color:#4a3f36}pre{white-space:pre-wrap;background:#f0e6cc;padding:12px}</style><h1>RASTRO-PHONE · OSINT S3GAD3</h1><p><b>Case:</b> ${esc(o.caseId)}<br><b>Generado:</b> ${esc(o.generatedAt)}</p><h2>Objetivo</h2><p><b>E.164:</b> <code>${esc(o.target.e164)}</code><br><b>País/prefijo:</b> ${esc(o.target.country)}<br><b>Tipo:</b> ${esc(o.target.type)}<br><b>Nombre/Alias:</b> ${esc(o.target.identity)}<br><b>Email:</b> ${esc(o.target.email)}<br><b>Contexto:</b> ${esc(o.target.context)}</p><h2>Variantes</h2><p>${o.variants.map(v=>`<code>${esc(v)}</code>`).join(" ")}</p><h2>Checklist</h2><ul>${Object.entries(o.checklist).map(([k,v])=>`<li>${v?"☑":"☐"} ${esc(k)}</li>`).join("")}</ul><h2>Hallazgos</h2><table><tr><th>Fecha</th><th>Fuente</th><th>Referencia</th><th>Observación</th></tr>${rows}</table><h2>Notas</h2><pre>${esc(o.notes)}</pre><p><small>Informe generado localmente por RASTRO-PHONE (kit OSINT S3GAD3). Las coincidencias requieren validación independiente.</small></p>`;
+}
+$("#exportJson").onclick=()=>{if(!requireState())return;download(`${state.caseId}.json`,JSON.stringify(exportObject(),null,2),"application/json")};
+$("#exportTxt").onclick=()=>{if(!requireState())return;const o=exportObject(),txt=`RASTRO-PHONE · OSINT S3GAD3\nCASE: ${o.caseId}\nFECHA: ${o.generatedAt}\n\nOBJETIVO\nE.164: ${o.target.e164}\nPaís/prefijo: ${o.target.country}\nTipo: ${o.target.type}\nNombre/Alias: ${o.target.identity}\nEmail: ${o.target.email}\nContexto: ${o.target.context}\n\nVARIANTES\n${o.variants.join("\n")}\n\nOFUSCADAS\n${o.maskedVariants.join("\n")}\n\nCHECKLIST\n${Object.entries(o.checklist).map(([k,v])=>`${v?"[X]":"[ ]"} ${k}`).join("\n")}\n\nHALLAZGOS\n${o.findings.map(f=>`${f.ts} | ${f.source} | ${f.url} | ${f.note}`).join("\n")||"Sin hallazgos"}\n\nNOTAS\n${o.notes}\n`;download(`${state.caseId}.txt`,txt)};
+$("#exportHtml").onclick=()=>{if(!requireState())return;download(`${state.caseId}_report.html`,reportHtml(),"text/html")};
+$("#deleteCase").onclick=()=>{if(!requireState())return;localStorage.removeItem(caseKey());setHistory(getHistory().filter(x=>x.digits!==state.digits));state=freshState();$("#phone").value=$("#identity").value=$("#email").value=$("#context").value=$("#notesBox").value="";renderAll();$("#status").textContent="Sesión eliminada del almacenamiento local.";};
+$("#clearHistory").onclick=()=>{localStorage.removeItem("rph_history");renderHistory();$("#status").textContent="Historial de sesiones vaciado. Los casos individuales permanecen hasta que se eliminen.";};
+$("#newCase").onclick=()=>{state=freshState();$("#phone").value=$("#identity").value=$("#email").value=$("#context").value=$("#notesBox").value="";renderAll();$("#phone").focus();$("#status").textContent="Nueva sesión preparada.";};
+$("#modalClose").onclick=()=>$("#modalOverlay").classList.remove("open");
+$("#modalOverlay").addEventListener("click",e=>{if(e.target.id==="modalOverlay")$("#modalOverlay").classList.remove("open")});
+
+$("#today").textContent=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
+renderEngines();
+renderAll();
+})();
+</script>
+</body>
+</html>
