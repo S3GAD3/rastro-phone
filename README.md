@@ -23,8 +23,14 @@ Tercera pieza del kit de ciberinteligencia junto a [RASTRO-GH](https://s3gad3.gi
   - Documentos (PDF, Office, CV/directorios, número ofuscado)
   - Repositorios y técnico (GitHub/GitLab, pastes/gists, configs/logs)
   - **Listas de spam/estafa en España** — Tellows y ListaSpam con enlace directo verificado; TelefonoSpam, ¿Quién me llama? y Responderono vía dork
+  - **Operador / portabilidad** — abre el formulario oficial de la CNMC (España) o Numbering Plans (internacional) y copia el número al portapapeles automáticamente (ver detalle abajo)
   - **Imágenes asociadas** — Google/Bing/Yandex Imágenes con la query exacta
   - **Archivo web** — Internet Archive y Wayback Machine
+- **Verificación de IMEI** (sección independiente, no ligada al número de teléfono):
+  - Cálculo y validación del **dígito de control** mediante el algoritmo de Luhn estándar de GSMA, ejecutado 100% en el navegador — introduces 14 dígitos (TAC + número de serie) y obtienes el IMEI completo, o introduces los 15 dígitos y la herramienta valida si el control coincide.
+  - Descomposición automática en **TAC** (identificador de modelo, 8 primeros dígitos) y **número de serie** (6 siguientes).
+  - Botones de identificación de **marca/modelo por TAC** hacia bases de datos públicas (Osmocom TAC Database, Numbering Plans, IMEI.info), copiando el IMEI al portapapeles automáticamente. No se embebe una base de datos TAC local: el catálogo completo del GSMA pesa varios cientos de MB y cambia constantemente, así que se prioriza enlazar a fuentes vivas y verificables antes que arriesgar una atribución de marca/modelo incorrecta con datos desactualizados.
+  - Botón para volcar el resultado directamente a la libreta de hallazgos del caso activo.
 - **Enlace directo vs. dork, diferenciados visualmente:** 🔵 azul = URL directa o consulta general verificada; 🟢 verde = dork `site:` dirigido cuando la plataforma no ofrece pivote directo por número.
 - **Checklist de investigación** con progreso automático según las categorías consultadas, más validación manual final.
 - **Libreta de hallazgos:** registro manual de URLs/referencias con fecha y observación, sin scraping ni descarga de contenido de terceros.
@@ -53,11 +59,21 @@ Tercera pieza del kit de ciberinteligencia junto a [RASTRO-GH](https://s3gad3.gi
 
 **Listas de spam/estafa (España) — vía dork:** TelefonoSpam, ¿Quién me llama?, Responderono
 
+**Operador / portabilidad — enlace directo, consulta manual:** CNMC (España — [numeracionyoperadores.cnmc.es](https://numeracionyoperadores.cnmc.es/portabilidad/movil)), Numbering Plans (internacional)
+
+**IMEI — cálculo 100% local:** dígito de control (Luhn/GSMA), TAC, número de serie
+
+**IMEI — identificación de marca/modelo, enlace directo:** Osmocom TAC Database, Numbering Plans (IMEI), IMEI.info
+
 **Imágenes — enlace directo:** Google Imágenes, Bing Imágenes, Yandex Imágenes
 
 **Archivo web — enlace directo:** Internet Archive, Wayback Machine
 
 > Los patrones de URL directa (Tellows, ListaSpam, WhatsApp, Telegram) se verificaron manualmente antes de implementarlos. Donde no se pudo confirmar un patrón fiable, se optó por un dork de Google en lugar de un enlace potencialmente roto.
+>
+> **Sobre la consulta de operador en la CNMC:** el propio regulador indica expresamente que el formulario de portabilidad móvil no admite consultas automatizadas ni por API (está protegido por captcha y limitado a un número de consultas diarias por origen), ya que se apoya en un servicio de la AOPM ajeno a la CNMC. Por eso RASTRO-PHONE no intenta automatizar esa consulta: se limita a abrir el formulario oficial y copiar el número al portapapeles para agilizar el pegado manual.
+
+
 
 ---
 
