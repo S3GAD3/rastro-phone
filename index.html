@@ -364,17 +364,41 @@
 
     <!-- ============ 06 · PLAYBOOK DE CATEGORÍAS ============ -->
     <div class="section-title"><span class="num">06</span><h2>Playbook OSINT por categoría</h2></div>
-    <p class="section-desc"><span class="plat-btn" style="display:inline-flex;min-height:auto;padding:2px 8px;font-size:9.5px;vertical-align:middle">directo</span> = enlace o consulta general del motor. <span class="plat-btn dork" style="display:inline-flex;min-height:auto;padding:2px 8px;font-size:9.5px;vertical-align:middle">dork</span> = búsqueda <code>site:</code> dirigida porque la plataforma no ofrece un patrón de perfil fiable a partir del número. El estado "revisada" se marca en verde y se guarda en la sesión local del número.</p>
+    <p class="section-desc"><span class="plat-btn" style="display:inline-flex;min-height:auto;padding:2px 8px;font-size:9.5px;vertical-align:middle">directo</span> = enlace o consulta general del motor. <span class="plat-btn dork" style="display:inline-flex;min-height:auto;padding:2px 8px;font-size:9.5px;vertical-align:middle">dork</span> = búsqueda <code>site:</code> dirigida porque la plataforma no ofrece un patrón de perfil fiable a partir del número. El estado "revisada" se marca en verde y se guarda en la sesión local del número. La categoría <b>Operador / portabilidad</b> abre el formulario oficial de la CNMC (España) o Numbering Plans (internacional) y copia el número al portapapeles: la CNMC no permite consultas automatizadas por API — el formulario está protegido por captcha y limitado a un número de consultas diarias — así que la comprobación siempre es manual.</p>
     <div id="categories"></div>
 
     <!-- ============ 07 · CHECKLIST ============ -->
-    <div class="section-title"><span class="num">07</span><h2>Checklist de investigación</h2></div>
+    <!-- ============ 07 · IMEI ============ -->
+    <div class="section-title"><span class="num">07</span><h2>Verificación de IMEI</h2></div>
+    <p class="section-desc">Calcula y valida el dígito de control del IMEI con el algoritmo Luhn estándar de GSMA (100% local, sin consultar ningún servicio externo) y descompón el número en TAC (modelo) y número de serie. La identificación de marca/modelo requiere una base de datos TAC completa que no cabe en este archivo; los botones de abajo abren bases de datos TAC públicas y copian el IMEI al portapapeles para pegarlo directamente.</p>
+    <div class="search-box">
+      <label for="imeiInput">IMEI (14 dígitos sin control, o 15 dígitos completos)</label>
+      <div class="search-row">
+        <input type="text" id="imeiInput" inputmode="numeric" autocomplete="off" placeholder="35693803564380 (14) o 356938035643809 (15)" maxlength="17">
+        <button class="btn-stamp blue" id="imeiCalc">▶ Calcular / validar</button>
+        <button class="btn-stamp ghost small" id="imeiSave">Guardar como hallazgo</button>
+      </div>
+      <div class="hint">El dígito de control (posición 15) se calcula localmente aplicando el algoritmo de Luhn sobre los 14 primeros dígitos (TAC + número de serie), el mismo método usado por GSMA. Si introduces los 15 dígitos, la herramienta valida si el dígito de control coincide.</div>
+      <div id="imeiResult" class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-box"><b id="imeiTac">—</b><span>TAC (modelo)</span></div>
+        <div class="stat-box"><b id="imeiSerial">—</b><span>Nº de serie</span></div>
+        <div class="stat-box"><b id="imeiCheck">—</b><span>Dígito control</span></div>
+        <div class="stat-box"><b id="imeiValid">—</b><span>Validez (si 15 dígitos)</span></div>
+      </div>
+      <div class="status-line" id="imeiStatus"></div>
+    </div>
+    <details class="category" id="catImei">
+      <summary>Identificar marca / modelo por TAC <span class="count">3</span></summary>
+      <div class="btn-grid" id="imeiGrid"></div>
+    </details>
+
+    <div class="section-title"><span class="num">08</span><h2>Checklist de investigación</h2></div>
     <div class="progress"><i id="progressBar"></i></div>
     <div class="hint" id="progressText" style="margin-top:0">0 de 0 completadas</div>
     <div class="tasklist" id="taskList" style="margin-top:11px"></div>
 
     <!-- ============ 08 · HALLAZGOS ============ -->
-    <div class="section-title"><span class="num">08</span><h2>Hallazgos manuales</h2></div>
+    <div class="section-title"><span class="num">09</span><h2>Hallazgos manuales</h2></div>
     <p class="section-desc">Registra URLs o referencias relevantes. No se descarga ni inspecciona ningún contenido: funciona como libreta de trabajo local.</p>
     <div class="findings-form">
       <input id="findingSource" type="text" placeholder="Fuente / plataforma">
@@ -390,12 +414,12 @@
     </div>
 
     <!-- ============ 09 · NOTAS ============ -->
-    <div class="section-title"><span class="num">09</span><h2>Notas del investigador</h2></div>
+    <div class="section-title"><span class="num">10</span><h2>Notas del investigador</h2></div>
     <textarea id="notesBox" placeholder="Hipótesis, descartes, relaciones, fechas, observaciones…"></textarea>
     <div class="notice">Una coincidencia del número no es atribución suficiente. Corrobora identidad, temporalidad, contexto, posible reciclado de numeración y al menos una fuente independiente antes de dar por válido un hallazgo.</div>
 
     <!-- ============ 10 · EXPORTAR ============ -->
-    <div class="section-title"><span class="num">10</span><h2>Exportar expediente</h2></div>
+    <div class="section-title"><span class="num">11</span><h2>Exportar expediente</h2></div>
     <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-stamp blue" id="exportHtml">Informe HTML</button>
       <button class="btn-stamp ghost" id="exportJson">JSON</button>
@@ -502,6 +526,10 @@ const categories=[
    {name:"¿Quién me llama?",tag:"site:",kind:"dork",q:s=>`site:quienmellama.com (${s.exact})`},
    {name:"Responderono",tag:"site:",kind:"dork",q:s=>`site:responderono.es (${s.exact})`}
  ]},
+ {id:"carrier",phase:"operador",title:"Operador / portabilidad",items:[
+   {name:"CNMC · Portabilidad móvil",tag:"España · oficial · manual",kind:"link",href:s=>"https://numeracionyoperadores.cnmc.es/portabilidad/movil",copy:s=>s.national||s.digits},
+   {name:"Numbering Plans · Operador",tag:"internacional · manual",kind:"link",href:s=>"https://www.numberingplans.com/?page=analysis&sub=phonenr",copy:s=>"+"+s.digits}
+ ]},
  {id:"images",phase:"imagenes",title:"Imágenes asociadas",items:[
    {name:"Google Imágenes",tag:"directo",kind:"link",href:s=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent(s.exact)},
    {name:"Bing Imágenes",tag:"directo",kind:"link",href:s=>"https://www.bing.com/images/search?q="+encodeURIComponent(s.exact)},
@@ -513,6 +541,19 @@ const categories=[
  ]}
 ];
 
+const imeiLinks=[
+ {name:"Osmocom TAC Database",tag:"comunitaria · abierta"},
+ {name:"Numbering Plans · IMEI",tag:"uso LE / investigadores"},
+ {name:"IMEI.info",tag:"directorio TAC"}
+];
+function imeiLinkUrl(idx){
+ return [
+  "http://tacdb.osmocom.org/query",
+  "https://www.numberingplans.com/?page=analysis&sub=imeinr",
+  "https://www.imei.info/"
+ ][idx];
+}
+
 const checklist=[
 ["normalize","Normalización","Verificar formato internacional y país/prefijo."],
 ["motores","Metabúsqueda","Revisar al menos dos motores diferentes."],
@@ -523,6 +564,7 @@ const checklist=[
 ["documentos","Documentos","Buscar PDF, Office, CV y directorios."],
 ["tecnico","Técnico","Revisar repositorios, pastes y archivos técnicos."],
 ["spam","Listas de spam","Consultar Tellows, ListaSpam y directorios de estafa."],
+["operador","Operador / portabilidad","Determinar el operador actual (CNMC para España, Numbering Plans para el resto)."],
 ["imagenes","Imágenes","Buscar imágenes asociadas al número."],
 ["archivo","Archivo web","Revisar Internet Archive / Wayback Machine."],
 ["correlation","Correlación","Cruzar con alias, email, dominio o contexto conocido."],
@@ -652,7 +694,10 @@ function renderCategories(){
    ev.preventDefault();
    if(!requireState())return;
    const cat=categories.find(c=>c.id===a.dataset.cat), item=cat.items[Number(a.dataset.idx)];
-   if(item.kind==="link"){ openUrl(item.href(state)); }
+   if(item.kind==="link"){
+     openUrl(item.href(state));
+     if(item.copy){ const v=item.copy(state); if(v){ navigator.clipboard?.writeText(v).catch(()=>{}); $("#status").textContent=`Enlace abierto y valor "${v}" copiado al portapapeles: pégalo en el formulario de destino.`; } }
+   }
    else{ const q=item.q(state); if(!q){$("#status").textContent="No hay query suficiente para esta consulta (revisa variantes ofuscadas).";return;} openUrl(engines.google.url(q)); }
    state.catDone[cat.id]=true; state.checked[cat.phase]=true;
    saveState();renderCategories();renderChecklist();
@@ -734,8 +779,64 @@ $("#newCase").onclick=()=>{state=freshState();$("#phone").value=$("#identity").v
 $("#modalClose").onclick=()=>$("#modalOverlay").classList.remove("open");
 $("#modalOverlay").addEventListener("click",e=>{if(e.target.id==="modalOverlay")$("#modalOverlay").classList.remove("open")});
 
+/* ============== IMEI · Luhn + TAC ============== */
+function imeiCheckDigit(payload14){
+ const digits=payload14.split('').map(Number).reverse();
+ let sum=0;
+ digits.forEach((d,i)=>{ if(i%2===0){ d*=2; if(d>9)d-=9; } sum+=d; });
+ return (10-(sum%10))%10;
+}
+let lastImei="";
+function renderImeiLinks(){
+ $("#imeiGrid").innerHTML=imeiLinks.map((it,i)=>`<a href="#" class="plat-btn" data-imei-idx="${i}"><span>${esc(it.name)}</span><span class="tag">${esc(it.tag)}</span></a>`).join("");
+ $$("[data-imei-idx]").forEach(a=>a.onclick=(ev)=>{
+   ev.preventDefault();
+   const idx=Number(a.dataset.imeiIdx);
+   const raw=$("#imeiInput").value.replace(/\D/g,"");
+   if(!raw){$("#imeiStatus").textContent="Introduce un IMEI antes de abrir una base de datos TAC.";return;}
+   navigator.clipboard?.writeText(raw).catch(()=>{});
+   openUrl(imeiLinkUrl(idx));
+   $("#imeiStatus").textContent=`IMEI "${raw}" copiado al portapapeles: pégalo en el formulario de destino para identificar marca y modelo.`;
+ });
+}
+$("#imeiCalc").onclick=()=>{
+ const raw=$("#imeiInput").value.replace(/\D/g,"");
+ if(raw.length!==14&&raw.length!==15){
+   $("#imeiStatus").textContent="Introduce 14 dígitos (TAC+serie) o 15 dígitos (IMEI completo con control).";
+   $("#imeiTac").textContent=$("#imeiSerial").textContent=$("#imeiCheck").textContent=$("#imeiValid").textContent="—";
+   return;
+ }
+ const payload=raw.slice(0,14), tac=payload.slice(0,8), serial=payload.slice(8,14);
+ const calc=imeiCheckDigit(payload);
+ $("#imeiTac").textContent=tac;
+ $("#imeiSerial").textContent=serial;
+ $("#imeiCheck").textContent=calc;
+ if(raw.length===15){
+   const provided=Number(raw[14]);
+   $("#imeiValid").textContent = provided===calc ? "✔ Válido" : `✘ No coincide (${provided})`;
+   lastImei=payload+calc;
+   $("#imeiStatus").textContent = provided===calc
+     ? "El dígito de control coincide: el IMEI es aritméticamente válido."
+     : `El dígito de control no coincide. Con estos 14 dígitos, el control correcto sería ${calc}, no ${provided}.`;
+ }else{
+   $("#imeiValid").textContent="14 dígitos";
+   lastImei=payload+calc;
+   $("#imeiStatus").textContent=`IMEI completo calculado: ${payload}${calc}`;
+ }
+};
+$("#imeiSave").onclick=()=>{
+ if(!requireState())return;
+ const raw=$("#imeiInput").value.replace(/\D/g,"");
+ if(!raw){$("#imeiStatus").textContent="Calcula un IMEI antes de guardarlo como hallazgo.";return;}
+ const note=lastImei?`IMEI verificado: ${lastImei} (TAC ${lastImei.slice(0,8)}, serie ${lastImei.slice(8,14)}, control ${lastImei.slice(14)})`:`IMEI: ${raw}`;
+ state.findings.unshift({ts:new Date().toISOString(),source:"IMEI",url:"",note});
+ saveState();renderFindings();
+ $("#imeiStatus").textContent="Añadido a la libreta de hallazgos del caso activo.";
+};
+
 $("#today").textContent=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
 renderEngines();
+renderImeiLinks();
 renderAll();
 })();
 </script>
