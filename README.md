@@ -4,7 +4,7 @@
 
 🔗 **Demo en vivo:** [https://s3gad3.github.io/rastro-phone/](https://s3gad3.github.io/rastro-phone/)
 
-Tercera pieza del kit de ciberinteligencia junto a [RASTRO-GH](https://s3gad3.github.io/rastro-gh/) (GitHub → email) y [RASTRO-USER](https://s3gad3.github.io/rastro-user/) (username/email → redes). **RASTRO-PHONE** parte de un **número de teléfono** y construye automáticamente su normalización internacional, sus variantes ofuscadas y los enlaces de pivote hacia motores de búsqueda, redes sociales, mensajería, anuncios, documentos, listas de spam/estafa e imágenes asociadas.
+**RASTRO-PHONE** parte de un **número de teléfono** y construye automáticamente su normalización internacional, sus variantes ofuscadas y los enlaces de pivote hacia motores de búsqueda, redes sociales, mensajería, anuncios, documentos, listas de spam/estafa e imágenes asociadas.
 
 ---
 
@@ -103,8 +103,3 @@ No requiere instalación, dependencias de build ni configuración. Es un sitio e
 Herramienta de **uso interno autorizado** para investigación de ciberinteligencia y cibercrimen. Únicamente construye y abre enlaces a información pública o motores de búsqueda públicos; no accede, automatiza scraping ni almacena datos de terceros. El investigador es responsable de verificar visualmente cada resultado y de operar dentro del marco legal aplicable a su investigación. Una coincidencia del número no constituye atribución suficiente: debe corroborarse con identidad, temporalidad, contexto y fuentes independientes.
 
 ---
-
-## 🔗 Proyectos relacionados
-
-- [RASTRO-GH](https://s3gad3.github.io/rastro-gh/) — pivote OSINT desde GitHub hacia emails y perfiles asociados.
-- [RASTRO-USER](https://s3gad3.github.io/rastro-user/) — pivote OSINT desde username/email hacia redes globales y plataformas españolas.
